@@ -1,0 +1,7 @@
+{
+    "Paths": {
+        "Input": "../data/inputs",
+        "Examples": "../data/examples",
+        "Settings": "Settings.json"
+    }
+}

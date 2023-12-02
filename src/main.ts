@@ -1,32 +1,38 @@
-const readline = require('readline');
-
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-const readInput = (query: string): Promise<string> => new Promise((resolve) => rl.question(`${query}  `, resolve));
-
-import { getExamples, getInput } from "./cli";
 import { IDay } from "./interfaces";
+import { GetExample, GetTestInput, WriteTestInput, PromptUser, FetchInput, QuitPrompt, WriteSetting } from "./lib";
 import { Day1, Day2 } from "./solutions";
 
+// Days - Note that as new solutions are added, we should add them to the array here, in order.
 let days = [new Day1(), new Day2()];
 
-async function outputResults(dayNumber: number, day: IDay) {
-    let exampleP1 = await getExamples(dayNumber, 1);
-    let exampleP2 = await getExamples(dayNumber, 2);
-
-    // Read input - Note that this has a special check in case it fails, to tell the user that they need to create the file.
-    let input : string = "";
+// Retrieve Input
+async function getInputData(day: number): Promise<string> {
+    // First, check if the input is already written to disk, and retrieve it if it exists
     try {
-        input = await getInput(dayNumber);
-    } catch (e: any) {
-        const code = e.code;
-        if (code === 'ENOENT') {
-            console.log(`Failed to find input file; please check that this file has been created. If you're not sure, please read the README for instructions.`);
-        } else {
-            console.log(`Failed to read input file: ${e.message}`)
+        return await GetTestInput(day);
+    } catch (e : any) {
+        if (e.code !== 'ENOENT') {
+            throw e;
         }
-
-        return;
+        
+        // Doesn't exist; retrieve it from the network.
+        let inputFetched = await FetchInput(day);
+        if (!inputFetched) {
+            // Could not retrieve the input data.
+            throw e;
+        }
+        
+        // Write back to disk so that we can save it for later
+        WriteTestInput(day, inputFetched);
+        return inputFetched;
     }
+}
+
+// Log a day's output to the console.
+async function outputResults(dayNumber: number, day: IDay) {
+    let exampleP1 = await GetExample(dayNumber, 1);
+    let exampleP2 = await GetExample(dayNumber, 2);
+    let input = (await getInputData(dayNumber)).trim();
 
     console.log(`
         EXAMPLES:
@@ -39,37 +45,56 @@ async function outputResults(dayNumber: number, day: IDay) {
     `);
 }
 
-// Usage inside aync function do not need closure demo only
-(async() => {
+// Allows the user to run the code for a specific day.
+async function runDay() {
+    let input = await PromptUser(`Please input a day to read the result from [1 - ${days.length}]:`);
+    let dayNumber = parseInt(input);
+    let day = days[dayNumber - 1];
+    if (!dayNumber || !day) {
+        console.error(`Invalid Input: ${input}`);
+        return;
+    }
+
+    try {
+        await outputResults(dayNumber, day);
+    } catch (ex) {
+        console.error(`Failed to output results: ${ex}`)
+    }
+}
+
+// Allow the user to configure their settings.
+async function configure(){
+    let sessionToken = await PromptUser("Please enter your session token:");
+    await WriteSetting("Session", sessionToken);
+}
+
+// Main loop.
+async function Main(){
     try {
         console.log(`Hello World! This program lets you solve Advent of Code challenges.`);
         let quit = false;
         while (!quit) {
-            let input = await readInput(`Please input a day to read the result from [1 - ${days.length}]. Or enter 'quit' to quit:`);
-            if (input.toLowerCase() === 'quit') {
-                quit = true;
-                break;
-            }
-
-            let dayNumber = parseInt(input);
-            let day = days[dayNumber - 1];
-            if (!dayNumber || !day) {
-                console.error(`Invalid Input: ${input}`);
-                continue;
-            }
-
-            try {
-                await outputResults(dayNumber, day);
-            } catch (ex) {
-                console.error(`Failed to output results: ${ex}`)
+            let mode = await PromptUser(`Please select a mode [configure, day, or quit]:`);
+            switch (mode.toLowerCase()) {
+                case `quit`:
+                    quit = true;
+                    break;
+                case `configure`:
+                    await configure();
+                    break;
+                case `day`:
+                    await runDay();
+                    break;
+                default:
+                    console.error(`Invalid Input: ${mode}`);
+                    break;
             }
         }
 
-        rl.close();
+        QuitPrompt();
     } catch (e) {
         console.error(`Prompt Error.`);
     }
-})();
+}
 
-// When done reading prompt, exit program 
-rl.on('close', () => process.exit(0));
+Main();
