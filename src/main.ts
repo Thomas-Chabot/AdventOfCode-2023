@@ -16,7 +16,7 @@ async function outputResults(dayNumber: number, day: IDay) {
     // Read input - Note that this has a special check in case it fails, to tell the user that they need to create the file.
     let input : string = "";
     try {
-        input = await getInput(3);
+        input = await getInput(dayNumber);
     } catch (e: any) {
         const code = e.code;
         if (code === 'ENOENT') {
