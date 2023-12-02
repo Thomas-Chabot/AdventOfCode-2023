@@ -1,32 +1,43 @@
+require('dotenv').config();
+
 const readline = require('readline');
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const readInput = (query: string): Promise<string> => new Promise((resolve) => rl.question(`${query}  `, resolve));
 
-import { getExamples, getInput } from "./cli";
 import { IDay } from "./interfaces";
+import { GetExample, GetTestInput, WriteTestInput } from "./lib";
+import { FetchInput } from "./lib/Network";
 import { Day1, Day2 } from "./solutions";
 
 let days = [new Day1(), new Day2()];
 
-async function outputResults(dayNumber: number, day: IDay) {
-    let exampleP1 = await getExamples(dayNumber, 1);
-    let exampleP2 = await getExamples(dayNumber, 2);
-
-    // Read input - Note that this has a special check in case it fails, to tell the user that they need to create the file.
-    let input : string = "";
+async function getInputData(day: number): Promise<string> {
+    // First, check if the input is already written to disk, and retrieve it if it exists
     try {
-        input = await getInput(dayNumber);
-    } catch (e: any) {
-        const code = e.code;
-        if (code === 'ENOENT') {
-            console.log(`Failed to find input file; please check that this file has been created. If you're not sure, please read the README for instructions.`);
-        } else {
-            console.log(`Failed to read input file: ${e.message}`)
+        return await GetTestInput(day);
+    } catch (e : any) {
+        if (e.code !== 'ENOENT') {
+            throw e;
         }
-
-        return;
+        
+        // Doesn't exist; retrieve it from the network.
+        let inputFetched = await FetchInput(day);
+        if (!inputFetched) {
+            // Could not retrieve the input data.
+            throw e;
+        }
+        
+        // Write back to disk so that we can save it for later
+        WriteTestInput(day, inputFetched);
+        return inputFetched;
     }
+}
+
+async function outputResults(dayNumber: number, day: IDay) {
+    let exampleP1 = await GetExample(dayNumber, 1);
+    let exampleP2 = await GetExample(dayNumber, 2);
+    let input = (await getInputData(dayNumber)).trim();
 
     console.log(`
         EXAMPLES:

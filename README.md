@@ -1,9 +1,20 @@
 # Advent of Code 2023
 This repo contains solutions for the [Advent of Code for 2023](https://adventofcode.com/2023).
 
-# Setting up Input Data
-All input data should be placed under the folder `data/inputs/DayX.txt`.
+# Configuring the Environment
+This project will automatically retrieve your input data from the Advent of Code servers using your session cookie. Please follow the steps below to set this up.
 
-For example, Day 1 data should be in the file: `data/inputs/Day1.txt`; please follow the same format for all other files.
+## Fetching Session Token
+1. Navigate to [Advent of Code](https://adventofcode.com/2023).
+2. Log in with whatever user you'd like to use.
+3. Open up your Dev Tools, and inspect your cookies (In Chrome, you can find this at Application > Cookies).
+4. Under `Cookies`, open the cookies for https://adventofcode.com.
+5. Copy the value of the `session` cookie.
 
-These should be a direct copy-and-paste from the [Advent of Code data](https://adventofcode.com/2023/day/1/input) for that specific day.
+## Saving the Environment Variable
+1. Create a new file under the `build` folder with the name `.env`.
+2. In this new .env file, paste the following, replacing {{YOUR SESSION COOKIE}} with the value retrieved above:
+```
+SESSION={{YOUR SESSION COOKIE}}
+```
+3. Save the file.
