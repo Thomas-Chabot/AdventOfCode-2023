@@ -11,10 +11,7 @@ This project will automatically retrieve your input data from the Advent of Code
 4. Under `Cookies`, open the cookies for https://adventofcode.com.
 5. Copy the value of the `session` cookie.
 
-## Saving the Environment Variable
-1. Create a new file under the `build` folder with the name `.env`.
-2. In this new .env file, paste the following, replacing {{YOUR SESSION COOKIE}} with the value retrieved above:
-```
-SESSION={{YOUR SESSION COOKIE}}
-```
-3. Save the file.
+## Applying the Session Token
+1. Start the program by running `npm start`.
+2. Enter `configure` to enter configuration mode.
+3. Paste your Session Token.
