@@ -2,9 +2,10 @@ import { IDay } from "./interfaces";
 import { GetExample, GetTestInput, WriteTestInput, PromptUser, FetchInput, QuitPrompt, WriteSetting } from "./lib";
 import { Day1, Day2 } from "./solutions";
 import { Day3 } from "./solutions/Day3";
+import { Day4 } from "./solutions/Day4";
 
 // Days - Note that as new solutions are added, we should add them to the array here, in order.
-let days = [new Day1(), new Day2(), new Day3()];
+let days = [new Day1(), new Day2(), new Day3(), new Day4()];
 
 // Retrieve Input
 async function getInputData(day: number): Promise<string> {
