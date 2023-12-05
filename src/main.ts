@@ -1,11 +1,15 @@
-import { IDay } from "./interfaces";
+import { IDay, ITest } from "./interfaces";
 import { GetExample, GetTestInput, WriteTestInput, PromptUser, FetchInput, QuitPrompt, WriteSetting } from "./lib";
 import { Day1, Day2 } from "./solutions";
 import { Day3 } from "./solutions/Day3";
 import { Day4 } from "./solutions/Day4";
+import { SortedLinkTests } from "./tests";
 
 // Days - Note that as new solutions are added, we should add them to the array here, in order.
 let days = [new Day1(), new Day2(), new Day3(), new Day4()];
+let tests: { [id: string]: ITest } = {
+    sortedlinkedlist: SortedLinkTests
+}
 
 // Retrieve Input
 async function getInputData(day: number): Promise<string> {
@@ -64,6 +68,17 @@ async function runDay() {
     }
 }
 
+// Runs unit tests.
+async function runTest() {
+    let testType = await PromptUser(`Please select a test type [${Object.keys(tests).join(", ")}]:`);
+    let test = tests[testType.toLowerCase()];
+    if (test === undefined) {
+        console.error(`Could not find a test with the name ${testType}`);
+    } else {
+        test.RunTest();
+    }
+}
+
 // Allow the user to configure their settings.
 async function configure(){
     let sessionToken = await PromptUser("Please enter your session token:");
@@ -76,7 +91,7 @@ async function Main(){
         console.log(`Hello World! This program lets you solve Advent of Code challenges.`);
         let quit = false;
         while (!quit) {
-            let mode = await PromptUser(`Please select a mode [configure, day, or quit]:`);
+            let mode = await PromptUser(`Please select a mode [configure, day, test or quit]:`);
             switch (mode.toLowerCase()) {
                 case `quit`:
                     quit = true;
@@ -86,6 +101,9 @@ async function Main(){
                     break;
                 case `day`:
                     await runDay();
+                    break;
+                case `test`:
+                    await runTest();
                     break;
                 default:
                     console.error(`Invalid Input: ${mode}`);
