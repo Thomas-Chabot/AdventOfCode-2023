@@ -92,27 +92,44 @@ export class Day5 implements IDay {
         // Return just a 1-to-1 mapping of keeping the same value.
         return startValue;
     }
+    protected GetLocationValue(seed: number, maps: Data[][]): number {
+        let value = seed;
+
+        // Walk through every map to map our value
+        maps.forEach(map => {
+            value = this.MapValue(value, map);
+        });
+        
+        return value;
+    }
     Part1(input: string): string {
         let {Seeds, Maps} = this.BuildMaps(input.replace(/\r/g, ""));
-        let locations = new SortedLinkedList<number>((a, b) => a - b);
+        let lowest: number = 9e9;
 
-        Seeds.forEach(value => {
-            // Walk through every map to map our value
-            Maps.forEach(map => {
-                value = this.MapValue(value, map);
-            });
-
-            // After all the maps, we'll have our location; store this into the locations list
-            locations.Add(value);
+        Seeds.forEach(seed => {
+            let value = this.GetLocationValue(seed, Maps);
+            if (value < lowest) {
+                lowest = value;
+            }
         })
 
-        if (!locations.Head) {
-            return "";
-        }
-        return locations.Head.toString();
+        return lowest.toString();
     }
     Part2(input: string): string {
-        return "";
+        let {Seeds, Maps} = this.BuildMaps(input.replace(/\r/g, ""));
+        let lowest = 9e9;
+
+        // This is bruteforced, bad
+        for (let i = 0; i < Seeds.length; i+=2) {
+            for (let seed = Seeds[i]; seed <= seed + Seeds[i + 1]; seed++) {
+                let value = this.GetLocationValue(seed, Maps);
+                if (value < lowest) {
+                    lowest = value;
+                }
+            }
+        }
+
+        return lowest.toString();
     }
     
 }
