@@ -1,5 +1,6 @@
 import { SortedLinkedList } from "../dataStructures";
 import { ITest } from "../interfaces";
+import { assert } from "./assert";
 
 export function RunTest(){
     let linkedList = new SortedLinkedList<number>((a, b) => a - b);
@@ -12,10 +13,14 @@ export function RunTest(){
     linkedList.Add(8);
     linkedList.Add(7);
 
-    let resultArray = linkedList.ToArray();
+    let resultArray = linkedList.ToArray().join(",");
     let expectedArray = [0, 1, 2, 3, 4, 5, 7, 8];
 
+    // Head should be 0.
+    assert(linkedList.Head === 0, `Linked List Head has incorrect value: ${linkedList.Head}.`);
+
     // Note: For laziness, comparing this by joining to a string and comparing that.
-    console.assert(resultArray.join(",") === expectedArray.join(","), "Result Array is incorrect: %s", resultArray);
-    
+    assert(resultArray === expectedArray.join(","), `Result Array is incorrect: ${resultArray}`);
+
+    console.log("Sorted Linked List tests passed.");
 }

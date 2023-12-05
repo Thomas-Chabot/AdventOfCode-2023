@@ -58,5 +58,9 @@ export class SortedLinkedList<T> implements ISortedLinkedList<T> {
         }
         return results;
     }
+
+    get Head(): T | undefined {
+        return this.head ? this.head.Data : undefined;
+    }
     
 }
