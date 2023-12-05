@@ -43,11 +43,14 @@ async function outputResults(dayNumber: number, day: IDay) {
 
     console.log(`
         EXAMPLES:
-            Part 1: ${day.Part1(exampleP1)}
-            Part 2: ${day.Part2(exampleP2)}
+            Part 1: ${day.Part1(exampleP1)}`);
+    console.log(`
+            Part 2: ${day.Part2(exampleP2)}`);
+    console.log(`
 
         TEST INPUT:
-            Part 1: ${day.Part1(input)}
+            Part 1: ${day.Part1(input)}`)
+    console.log(`
             Part 2: ${day.Part2(input)}
     `);
 }
