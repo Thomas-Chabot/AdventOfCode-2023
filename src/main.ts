@@ -3,10 +3,11 @@ import { GetExample, GetTestInput, WriteTestInput, PromptUser, FetchInput, QuitP
 import { Day1, Day2 } from "./solutions";
 import { Day3 } from "./solutions/Day3";
 import { Day4 } from "./solutions/Day4";
+import { Day5 } from "./solutions/Day5";
 import { SortedLinkTests } from "./tests";
 
 // Days - Note that as new solutions are added, we should add them to the array here, in order.
-let days = [new Day1(), new Day2(), new Day3(), new Day4()];
+let days = [new Day1(), new Day2(), new Day3(), new Day4(), new Day5()];
 let tests: { [id: string]: ITest } = {
     sortedlinkedlist: SortedLinkTests
 }
@@ -75,7 +76,11 @@ async function runTest() {
     if (test === undefined) {
         console.error(`Could not find a test with the name ${testType}`);
     } else {
-        test.RunTest();
+        try {
+            test.RunTest();
+        } catch (e) {
+            console.error(`Test failed with exception: ${e}`);
+        }
     }
 }
 
