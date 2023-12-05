@@ -121,7 +121,7 @@ export class Day5 implements IDay {
 
         // This is bruteforced, bad
         for (let i = 0; i < Seeds.length; i+=2) {
-            for (let seed = Seeds[i]; seed <= seed + Seeds[i + 1]; seed++) {
+            for (let seed = Seeds[i]; seed <= Seeds[i] + Seeds[i + 1]; seed++) {
                 let value = this.GetLocationValue(seed, Maps);
                 if (value < lowest) {
                     lowest = value;
