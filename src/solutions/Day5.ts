@@ -132,4 +132,50 @@ export class Day5 implements IDay {
         return lowest.toString();
     }
     
+
+    /*
+        The Brute Force solution was fast enough to solve this one, so I haven't bothered to go through to implement a faster solution.
+        However, a potential improvement would be something along the lines of:
+
+        The bottom, locations, is a regular number line. It goes from 0 to infinity.
+        The next level up, humidity, will become a new number line. This one gets scrambled by the conversions that we need to take it to each location.
+
+        For example, assume we have the humidity-to-location mappings:
+            1 2 1
+            4 1 1
+            3 6 4
+
+            Then we can take our location number line:
+                1 - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9 - 10
+            And apply our conversions to it:
+                1 2 1 means we map from source 2 to desination 1; this will change the 2 in our number line to instead be a 1.
+                1 - 1 - 3 - 4 - 5 - 6 - 7 - 8 - 9 - 10
+            
+                4 1 1 means that from our humidity number line, point 1 will map to point 4.
+                4 - 1 - 3 - 4 - 5 - 6 - 7 - 8 - 9 - 10
+
+                3 6 4 maps four numbers, starting from 6, up to 9, to the destination numbers 3 to 7.
+                4 - 1 - 3 - 4 - 5 - 3 - 4 - 5 - 6 - 10
+
+                This gives us the new number line 4 - 1 - 3 - 4 - 5 - 3 - 4 - 5 - 6 - 10.
+
+        Assume we then have a mapping from temperature-to-humidity, where temperature 5 maps to humidity 1.
+            We now have the updated humidity number line, which points temperatures to where they land in locations. That means that:
+            Temperature 5 points to Humidity 1.
+            Humidity 1 was pointing to Location 4.
+
+            Now, Temperature 5 can be set to Location 4, giving us its new number line of:
+                1 - 2 - 3 - 4 - 4 - 6 - 7 - 8 - 9 - 10 - ...
+            
+            And we can keep walking up the chain, line-by-line, to figure out how each level maps to locations.
+
+        At the top of the chain, after we've gone through all the groups, we'll have a new number line that corresponds to the lowest locations.
+        Then we can just go through our inputs, and check for matches between our updated number line and the seed values.
+
+        Assume we have seeds 13, 3, 2, 7.
+        That means we have seeds between 2 - 8 and 13 - 15.
+        We can walk through our number line to look for the first number that falls between these ranges, and then we stop once we find that number.
+
+        I haven't bothered to program any of it, or calculate the efficiency of it. But I believe it would be faster than the bruteforce technique.
+    */
 }
