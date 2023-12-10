@@ -7,3 +7,4 @@ export * from "./Day6";
 export * from "./Day7";
 export * from "./Day8";
 export * from "./Day9";
+export * from "./Day10";
