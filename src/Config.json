@@ -2,6 +2,7 @@
     "Paths": {
         "Input": "../data/inputs",
         "Examples": "../data/examples",
+        "Debug": "../data/debug",
         "Settings": "Settings.json"
     }
 }
