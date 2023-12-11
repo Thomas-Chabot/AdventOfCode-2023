@@ -23,6 +23,11 @@ type Point = {
     Distance: number;
 }
 
+type Graph = {
+    Points: Point[];
+    PipeSet: Set<string>;
+}
+
 export class Day10 implements IDay {
     protected FindStartPosition(input: string): Vector2 {
         let startLine = input.substring(0, input.indexOf("S")).match(/\n/g)?.length || 0;
@@ -56,7 +61,7 @@ export class Day10 implements IDay {
 
         return validPoints;
     }
-    protected BranchOutFrom(startPosition: Vector2, lines: string[]) {
+    protected BranchOutFrom(startPosition: Vector2, lines: string[]): Graph {
         let points: Point[] = [ ];
         let visitedPoints : Set<string> = new Set<string>();
         visitedPoints.add(startPosition.ToString());
@@ -98,17 +103,71 @@ export class Day10 implements IDay {
             });
         }
 
-        return points[points.length - 1].Distance;
+        return {
+            Points: points,
+            PipeSet: visitedPoints
+        };
+    }
+    protected FindPointsInsideCurve(lines: string[], graph: Graph): Vector2[] {
+        // Create a 2D grid of spaces in the pipe
+        let grid: boolean[][] = []
+        lines.forEach((line, lineNumber) => {
+            let gridLine: boolean[] = [ ];
+            line.split("").forEach((_, characterIndex) => {
+                let isInCurve = graph.PipeSet.has(new Vector2(lineNumber, characterIndex).ToString());
+                gridLine[characterIndex] = isInCurve;
+            })
+            grid[lineNumber] = gridLine;
+        })
+
+        // Calculate the points inside the curve
+        let pointsInsideCurve: Vector2[] = [];
+        let insideCurve: Set<string> = new Set<string>();
+
+        // Walk through the grid and calculate all spaces that are inside the pipe.
+        // We can tell we're walking inside the pipe because we'll pass by one pointed up.
+        // For each of these that we pass, inside pipe gets flipped: yes/no/yes/no/...
+        let isInsideCurve = false;
+        const validCharacters: Set<string> = new Set<string>(["L", "J", "|"]);
+        lines.forEach((line, lineNumber) => {
+            line.split("").forEach((character, characterIndex) => {
+                // If we're inside the pipe, check to flip the flag.
+                if (grid[lineNumber][characterIndex]) {
+                    if (validCharacters.has(character)) {
+                        isInsideCurve = !isInsideCurve;
+                    }
+                } else if (isInsideCurve) {
+                    // Otherwise, if we're inside the curve, add this point.
+                    let position = new Vector2(lineNumber, characterIndex);
+                    insideCurve.add(position.ToString());
+                    pointsInsideCurve.push(position);
+                }
+            })
+        });
+
+        return pointsInsideCurve;
     }
     Part1(input: string): string {
         input = input.replace(/\r/g, "");
         let lines = input.split("\n");
 
         let startPosition = this.FindStartPosition(input);
-        return this.BranchOutFrom(startPosition, lines).toString();
+        let points = this.BranchOutFrom(startPosition, lines).Points;
+        return points[points.length - 1].Distance.toString();
     }
     Part2(input: string): string {
-        return "";
+        input = input.replace(/\r/g, "");
+        let lines = input.split("\n");
+
+        let startPosition = this.FindStartPosition(input);
+        let graph = this.BranchOutFrom(startPosition, lines);
+        /*graph.Points.push({
+            Position: startPosition,
+            Distance: 0
+        });*/
+
+        let pointsInsideCurve = this.FindPointsInsideCurve(lines, graph);
+        return pointsInsideCurve.length.toString();
     }
     
 }
