@@ -1,5 +1,6 @@
 node_modules/*
 build/*
 data/inputs/*
+data/debug/*
 
 !build/package.json

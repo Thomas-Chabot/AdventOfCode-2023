@@ -38,7 +38,16 @@ export async function WriteTestInput(day: number, input: string) {
     // Write the file content
     await writeFile(`${folderPath}/Day${day}.txt`, input);
 }
+export async function WriteDebug(day: number, data: string) {
+    let folderPath = GetAbsolutePath(Paths.Debug);
 
+    // If the Debug folder doesn't exist, create it
+    CreateFolder(folderPath);
+
+    // Write the file content
+    await writeFile(`${folderPath}/Day${day}.txt`, data);
+
+}
 // Reads a JSON value from the Settings file.
 export async function ReadSetting(name: string): Promise<unknown> {
     let stringified = (await readFile(Paths.Settings)).toString();
