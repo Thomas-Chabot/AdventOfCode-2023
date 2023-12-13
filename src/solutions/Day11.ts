@@ -99,6 +99,7 @@ export class Day11 implements IDay {
         let universe = this.ParseInput(lines);
         let totalDistance = 0;
 
+        // Go through every galaxy to find the distances to every other galaxy
         for (let index = 0; index < universe.Galaxies.length; index++) {
             let distances = this.FindClosestPaths(expansionFactor, universe.Galaxies[index], universe, lines);
             distances.forEach(x => {
@@ -106,6 +107,8 @@ export class Day11 implements IDay {
             })
         }
         
+        // Divide the total distance by 2 here because every galaxy is double counted.
+        // eg. We count (1, 7) as separate from (7, 1).
         return totalDistance / 2;
     }
     Part1(input: string): string {
