@@ -59,6 +59,8 @@ export class Day10 implements IDay {
         return validPoints;
     }
     protected BranchOutFrom(startPosition: Vector2, lines: string[]): Graph {
+        let pipeSet = new Set<string>();
+        
         let startPoints = this.FindValidStartPoints(startPosition, lines);
         let getValidDirections = (position: Vector2) => {
             let value = lines[position.X]?.charAt(position.Y);
@@ -69,12 +71,13 @@ export class Day10 implements IDay {
         }
         
         let charactersArray = lines.map(x => x.split(""));
-        let nodes = BFSArray(startPoints, charactersArray, getValidDirections);
-
-        let pipeSet = new Set<string>();
-        nodes.forEach(node => {
-            pipeSet.add(node.Position.ToString());
-        })
+        let nodes = BFSArray(startPoints, charactersArray, {
+            GetValidDirections: getValidDirections,
+            CheckNode: (node: Node) => {
+                pipeSet.add(node.Position.ToString());
+                return true;
+            }
+        });
 
         return {
             Points: nodes,

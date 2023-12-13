@@ -1,16 +1,41 @@
 import { Vector2 } from "../dataStructures";
 
-const DefaultDirections = [new Vector2(0, 1), new Vector2(1, 0), new Vector2(1, 0), new Vector2(-1, 0)];
+const DefaultDirections = [new Vector2(0, 1), new Vector2(0, -1), new Vector2(1, 0), new Vector2(-1, 0)];
 
 export type Node = {
     Position: Vector2;
     Distance: number;
 }
 
-export function BFSArray(startPositions: Vector2[], values: any[][], getValidDirections?: (position: Vector2)=>Vector2[]): Node[] {
-    if (getValidDirections === undefined) {
-        getValidDirections = ()=>DefaultDirections;
+// Configuration - Allows the calling function to configure how BFS will run.
+export type Config = {
+    GetValidDirections?: (position: Vector2) => Vector2[];
+    CheckNode?: (node: Node) => boolean;
+    GetDistance?: (node: Node, direction: Vector2) => number;
+}
+
+// Internal - object so that every function will be defined.
+type Configured = {
+    GetValidDirections: (position: Vector2) => Vector2[];
+    CheckNode: (node: Node) => boolean;
+    GetDistance: (node: Node, direction: Vector2) => number;
+}
+
+// Configures the program; either defines the function as a default, or uses the configuration if one has been provided.
+function Configure(config: Config | undefined): Configured {
+    let getDistance = config?.GetDistance === undefined ? (n: Node) => n.Distance + 1 : config.GetDistance;
+    let checkNode = config?.CheckNode === undefined ? ()=>true : config.CheckNode;
+    let getValidDirections = config?.GetValidDirections === undefined ? ()=>DefaultDirections : config.GetValidDirections;
+
+    return {
+        GetValidDirections: getValidDirections,
+        GetDistance: getDistance,
+        CheckNode: checkNode
     }
+}
+
+export function BFSArray(startPositions: Vector2[], values: any[][], configuration?: Config | undefined): Node[] {
+    let config = Configure(configuration);
 
     let targetNodes: Node[] = [ ];
     let visited = new Set<string>();
@@ -33,8 +58,16 @@ export function BFSArray(startPositions: Vector2[], values: any[][], getValidDir
 
     // Go through every target
     for (let index = 0; index < targetNodes.length; index++) {
-        let currentPosition = targetNodes[index].Position;
-        let directions = getValidDirections(currentPosition);
+        let currentNode = targetNodes[index];
+        let currentPosition = currentNode.Position;
+        
+        // Check the node, and exit early if we're done
+        if (config.CheckNode(currentNode) === false) {
+            break;
+        }
+
+        // Calculate all nodes to move to
+        let directions = config.GetValidDirections(currentPosition);
         directions.forEach(direction => {
             let newPosition = currentPosition.Add(direction.X, direction.Y);
             if (visited.has(newPosition.ToString()) || !isWithinGrid(newPosition)) {
@@ -43,7 +76,7 @@ export function BFSArray(startPositions: Vector2[], values: any[][], getValidDir
 
             targetNodes.push({
                 Position: newPosition,
-                Distance: targetNodes[index].Distance + 1
+                Distance: config.GetDistance(currentNode, direction)
             });
             visited.add(newPosition.ToString());
         });
@@ -52,6 +85,6 @@ export function BFSArray(startPositions: Vector2[], values: any[][], getValidDir
     return targetNodes;
 }
 
-export function BFS(startPosition: Vector2, values: any[][], getValidDirections?: (position: Vector2)=>Vector2[]): Node[] {
-    return BFSArray([startPosition], values, getValidDirections);
+export function BFS(startPosition: Vector2, values: any[][], config?: Config): Node[] {
+    return BFSArray([startPosition], values, config);
 }
