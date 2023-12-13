@@ -1,3 +1,7 @@
+/*
+    Implements Advent of Code Day 11, where we embrace The Matrix :tm:.
+*/
+
 import { BFS, Node } from "../algorithms";
 import { Vector2 } from "../dataStructures";
 import { IDay } from "../interfaces";
@@ -7,8 +11,6 @@ type Universe = {
     BlankRows: Set<number>;
     BlankColumns: Set<number>;
 }
-
-const Directions = [new Vector2(0, 1), new Vector2(0, -1), new Vector2(1, 0), new Vector2(-1, 0)];
 
 export class Day11 implements IDay {
     protected ParseInput(lines: string[]): Universe {
@@ -61,9 +63,10 @@ export class Day11 implements IDay {
             }
         })
 
-        // Build out the nodes
+        // Use our BFS algorithm to expand outwards.
+        // This will take us to every other galaxy in the shortest distance.
         let characters = lines.map(x => x.split(""));
-        let nodes = BFS(fromGalaxy, characters, {
+        BFS(fromGalaxy, characters, {
             CheckNode: (node: Node) => {
                 // Check if we've found a galaxy
                 let galaxyId = galaxies.get(node.Position.ToString());
