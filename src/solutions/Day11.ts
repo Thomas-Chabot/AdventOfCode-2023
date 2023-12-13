@@ -120,5 +120,4 @@ export class Day11 implements IDay {
     Part2(input: string): string {
         return this.Solve(input, 1000000).toString();
     }
-    
 }
