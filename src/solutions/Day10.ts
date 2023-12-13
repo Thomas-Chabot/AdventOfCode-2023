@@ -1,5 +1,6 @@
 import { IDay } from "../interfaces";
 import { Vector2 } from "../dataStructures";
+import { Node, BFSArray } from "../algorithms";
 
 const Directions : {[direction: string]: Vector2} = {
     Up: new Vector2(-1, 0),
@@ -15,16 +16,12 @@ const DirectionsMap : {[character: string]: Vector2[]} = {
     'J': [Directions.Up, Directions.Left],
     '7': [Directions.Down, Directions.Left],
     'F': [Directions.Down, Directions.Right],
-    '.': []
+    '.': [],
+    'S': []
 };
 
-type Point = {
-    Position: Vector2;
-    Distance: number;
-}
-
 type Graph = {
-    Points: Point[];
+    Points: Node[];
     PipeSet: Set<string>;
 }
 
@@ -62,50 +59,29 @@ export class Day10 implements IDay {
         return validPoints;
     }
     protected BranchOutFrom(startPosition: Vector2, lines: string[]): Graph {
-        let points: Point[] = [ ];
-        let visitedPoints : Set<string> = new Set<string>();
-        visitedPoints.add(startPosition.ToString());
+        let pipeSet = new Set<string>();
         
-        // Find the valid positions that connect to S
         let startPoints = this.FindValidStartPoints(startPosition, lines);
-
-        // Push each of these into the queue of visited points
-        startPoints.forEach(x => {
-            points.push({
-                Position: x,
-                Distance: 1
-            });
-            visitedPoints.add(x.ToString());
+        let getValidDirections = (position: Vector2) => {
+            let value = lines[position.X]?.charAt(position.Y);
+            if (!value) {
+                return [];
+            }
+            return DirectionsMap[value];
+        }
+        
+        let charactersArray = lines.map(x => x.split(""));
+        let nodes = BFSArray(startPoints, charactersArray, {
+            GetValidDirections: getValidDirections,
+            CheckNode: (node: Node) => {
+                pipeSet.add(node.Position.ToString());
+                return true;
+            }
         });
 
-        // Go through each of the start points and find valid positions to reach
-        for (let index = 0; index < points.length; index++ ){
-            // Find the value stored at this point
-            let value = lines[points[index].Position.X]?.charAt(points[index].Position.Y);
-            if (!value) {
-                continue;
-            }
-            
-            // Calculate the directions from the point
-            let directions = DirectionsMap[value];
-            directions.forEach(direction => {
-                let newPoint = points[index].Position.Add(direction.X, direction.Y);
-                let value = lines[newPoint.X]?.charAt(newPoint.Y);
-                if (visitedPoints.has(newPoint.ToString()) || !value) {
-                    return;
-                }
-
-                points.push({
-                    Position: newPoint,
-                    Distance: points[index].Distance + 1
-                });
-                visitedPoints.add(newPoint.ToString());
-            });
-        }
-
         return {
-            Points: points,
-            PipeSet: visitedPoints
+            Points: nodes,
+            PipeSet: pipeSet
         };
     }
     protected FindPointsInsideCurve(lines: string[], graph: Graph): Vector2[] {
@@ -153,7 +129,7 @@ export class Day10 implements IDay {
 
         let startPosition = this.FindStartPosition(input);
         let points = this.BranchOutFrom(startPosition, lines).Points;
-        return points[points.length - 1].Distance.toString();
+        return (points[points.length - 1].Distance + 1).toString();
     }
     Part2(input: string): string {
         input = input.replace(/\r/g, "");
@@ -161,11 +137,7 @@ export class Day10 implements IDay {
 
         let startPosition = this.FindStartPosition(input);
         let graph = this.BranchOutFrom(startPosition, lines);
-        /*graph.Points.push({
-            Position: startPosition,
-            Distance: 0
-        });*/
-
+        
         let pointsInsideCurve = this.FindPointsInsideCurve(lines, graph);
         return pointsInsideCurve.length.toString();
     }
