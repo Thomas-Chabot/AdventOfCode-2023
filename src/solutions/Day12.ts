@@ -37,17 +37,9 @@ export class Day12 implements IDay {
         return true;
     }
 
-    protected Solve(sequence: string, sizes: number[], memo?: number[][] | undefined) {
+    protected Solve(sequence: string, sizes: number[], memo?: Map<number, Map<string, number>> | undefined) {
         if (memo === undefined) {
-            memo = [ ];
-        }
-        if (memo[sizes.length] === undefined) {
-            memo[sizes.length] = [ ];
-        }
-
-        // If we've previously stored this index, re-map the value
-        if (memo[sizes.length][sequence.length]) {
-            return memo[sizes.length][sequence.length];
+            memo = new Map<number, Map<string, number>>();
         }
 
         // Edge cases: If we reach the end of both sets, this is valid string
@@ -71,6 +63,17 @@ export class Day12 implements IDay {
         if (endIndex === 0) {
             endIndex = sequence.length;
         }
+        
+        if (!memo.has(sizes.length)) {
+            memo.set(sizes.length, new Map<string, number>());
+        }
+
+        // If we've previously stored this index, re-map the value
+        let memorizedValue = memo.get(sizes.length)?.get(sequence.substring(0, endIndex));
+        if (memorizedValue) {
+            return memorizedValue;
+        }
+
         for (let charIndex = 0; charIndex < endIndex; charIndex++) {
             // Check if this is a valid portion of the string that we can use.
             if (!this.CanFitSize(sequence.substring(charIndex), size)) {
@@ -84,7 +87,7 @@ export class Day12 implements IDay {
             options += result;
         }
 
-        memo[sizes.length][sequence.length] = options;
+        memo.get(sizes.length)?.set(sequence.substring(0, endIndex), options);
         return options;
     }
 
@@ -104,9 +107,11 @@ export class Day12 implements IDay {
     Part2(input: string): string {
         let lines = input.replace(/\r/g, "").split("\n");
         let sum = 0;
-        lines.forEach(inputString => {
+        lines.forEach((inputString, index) => {
             let {Sequence, Numbers} = this.ParseInput(inputString, 5);
             let options = this.Solve(Sequence, Numbers);
+
+            console.log(`Completed ${index}/${lines.length}`);
 
             //console.log(`${Sequence} ${Numbers.join(",")} :: ${options}`);
             sum += options;
