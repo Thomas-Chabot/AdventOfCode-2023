@@ -1,10 +1,10 @@
 import { IDay, ITest } from "./interfaces";
 import { GetExample, GetTestInput, WriteTestInput, PromptUser, FetchInput, QuitPrompt, WriteSetting } from "./lib";
-import { Day1, Day10, Day11, Day12, Day13, Day14, Day15, Day2, Day3, Day4, Day5, Day6, Day7, Day8, Day9 } from "./solutions";
+import { Day1, Day10, Day11, Day12, Day13, Day14, Day15, Day16, Day2, Day3, Day4, Day5, Day6, Day7, Day8, Day9 } from "./solutions";
 import { SortedLinkTests, Vector2 } from "./tests";
 
 // Days - Note that as new solutions are added, we should add them to the array here, in order.
-let dayClasses = [Day1, Day2, Day3, Day4, Day5, Day6, Day7, Day8, Day9, Day10, Day11, Day12, Day13, Day14, Day15];
+let dayClasses = [Day1, Day2, Day3, Day4, Day5, Day6, Day7, Day8, Day9, Day10, Day11, Day12, Day13, Day14, Day15, Day16];
 let days : IDay[] = [ ];
 let tests: { [id: string]: ITest } = {
     sortedlinkedlist: SortedLinkTests,
